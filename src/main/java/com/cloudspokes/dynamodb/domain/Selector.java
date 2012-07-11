@@ -18,9 +18,8 @@ public class Selector {
 	}
 
 	public Creative selectCreativeFor(User user) {
-		for (Entry<Creative, Long> e : map(user, creatives).entrySet()) {
-			Creative c = e.getKey();
-			Long t = e.getValue();
+		for (Creative c : creatives) {
+			Long t = DeliverLog.get(user.uuid, c.crid);
 			if (enable(c, t, timer.now())) {
 				DeliverLog.put(user.uuid, c.crid, timer.now());
 				return c;
