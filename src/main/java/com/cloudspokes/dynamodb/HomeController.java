@@ -212,7 +212,7 @@ public class HomeController {
 	}
 
 	synchronized void setup() throws Exception {
-		dynamoDB = Helper.createMapper();
+		dynamoDB = Helper.mapper();
 	}
 
 }

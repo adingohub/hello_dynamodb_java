@@ -23,7 +23,7 @@ public class HelperTest {
 	
 	@Test
 	public void helloDynamoDBMapper() throws Exception {
-		DynamoDBMapper dynamoDB = Helper.createMapper();
+		DynamoDBMapper dynamoDB = Helper.mapper();
 		assertThat(dynamoDB, is(not(nullValue())));
 		DynamoDBScanExpression exp = new DynamoDBScanExpression();
 		Helper.deleteAllLoans(dynamoDB);

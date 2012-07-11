@@ -1,8 +1,5 @@
 package com.cloudspokes.dynamodb.helper;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -25,41 +22,46 @@ public class Helper {
 		}
 	}
 	
-	static AWSKey awsKey() throws IOException {
+	static AWSKey awsKey() {
 		Properties p = new Properties();
 		InputStream r = ClassLoader.getSystemClassLoader().getResourceAsStream("aws_key.properties");
 		try {
-			p.load(r);
-			return new AWSKey(p.getProperty("access_key"), p.getProperty("secret_key"));
-		} finally {
-			r.close();
+			try {
+				p.load(r);
+				return new AWSKey(p.getProperty("access_key"), p.getProperty("secret_key"));
+			} finally {
+				r.close();
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 	
-	public static DynamoDBMapper createMapper() throws Exception {
+	static DynamoDBMapper mapper;
+	
+	public static DynamoDBMapper mapper() {
+		if (mapper != null) return mapper;
 		AWSKey key = awsKey();
-		return createMapper(key.accessKey, key.secretKey);
+		mapper = mapper(key.accessKey, key.secretKey);
+		return mapper;
 	}
 
-	public static DynamoDBMapper createMapper(String accessKey, String secretKey) throws Exception {
-		BasicAWSCredentials creds = new BasicAWSCredentials(accessKey,
-				secretKey);
+	private static DynamoDBMapper mapper(String accessKey, String secretKey) {
+		BasicAWSCredentials creds = new BasicAWSCredentials(accessKey, secretKey);
 		AmazonDynamoDBClient client = new AmazonDynamoDBClient(creds);
 		client.setEndpoint("https://dynamodb.ap-northeast-1.amazonaws.com");
 		return new DynamoDBMapper(client);
 	}
 
-	/**
-	 * Deletes all items from dynamodb
-	 * @param dynamoDB 
-	 */
 	public static void deleteAllLoans(DynamoDBMapper dynamoDB) throws AmazonServiceException {
-		PaginatedScanList<Loan> scan = dynamoDB.scan(Loan.class,
+		deleteAll(dynamoDB, Loan.class);
+	}
+	
+	public static void deleteAll(DynamoDBMapper dynamoDB, Class<?> dynamoDBTableClass) throws AmazonServiceException {
+		PaginatedScanList<?> scan = dynamoDB.scan(dynamoDBTableClass,
 				new DynamoDBScanExpression());
-		for (Loan l : scan) {
+		for (Object l : scan) {
 			dynamoDB.delete(l);
 		}
 	}
-
-
 }
