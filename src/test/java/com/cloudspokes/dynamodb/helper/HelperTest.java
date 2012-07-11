@@ -22,6 +22,7 @@ public class HelperTest {
 	}
 	
 	@Test
+	@Ignore
 	public void helloDynamoDBMapper() throws Exception {
 		DynamoDBMapper dynamoDB = Helper.mapper();
 		assertThat(dynamoDB, is(not(nullValue())));
